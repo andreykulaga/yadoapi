@@ -14,9 +14,7 @@
     <name>yadoapi</name>
     <description>yadoapi</description>
     <properties>
-        <maven.test.skip>true</maven.test.skip>
         <java.version>1.8</java.version>
-<!--        <maven.test.skip>true</maven.test.skip>-->
     </properties>
     <dependencies>
         <dependency>
@@ -54,9 +52,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-<!--                <version>${project.parent.version}</version>-->
                 <configuration>
-<!--                    <mainClass>com.example.yadoapi.YadoapiApplication</mainClass>-->
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
