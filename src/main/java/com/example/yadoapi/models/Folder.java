@@ -13,7 +13,7 @@ import static com.example.yadoapi.models.SystemItemType.FILE;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Folder {
+public class Folder extends FileOrFolder{
 
     private String id;
     private final String type = "FOLDER";
@@ -21,7 +21,7 @@ public class Folder {
     private String url;
     private String parentId;
     private long size;
-    private  Set<Object> children;
+    private  Set<FileOrFolder> children;
 
 
     public Folder (SystemItemImport systemItemImport) {

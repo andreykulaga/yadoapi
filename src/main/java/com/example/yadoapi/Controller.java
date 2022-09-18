@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.Instant;
 import java.util.*;
 
 import static com.example.yadoapi.models.SystemItemType.FILE;
@@ -77,20 +77,24 @@ public class Controller {
     @DeleteMapping
             (value = "/delete/{id}",
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public void delete(@PathVariable String id) {
-        if (itemRepository.existsById(id)) {
-            Set<String> idToDelete = markToDelete(id);
+    public void delete(@PathVariable String id, @RequestParam String date) {
+
+            Instant.parse(date);
             SystemItemImport sii = itemRepository.getReferenceById(id);
+            //составляем сет на удаление
+            Set<String> idToDelete = markToDelete(id);
+            //изменяем размер и дату изменения всех родителей
             if (sii.getParentId() != null) {
                 SystemItemImport parent = itemRepository.getReferenceById(sii.getParentId());
                 long newSize = parent.getSize() - sii.getSize();
                 parent.setSize(newSize);
+                parent.setDate(date);
                 itemRepository.saveAndFlush(parent);
             }
             idToDelete.forEach(s -> itemRepository.deleteById(s));
-        }
     }
 
+    //метод по id составляет сет всех детей для их удаления
     Set<String> markToDelete(String string){
         Set<String> result = new HashSet<>();
         result.add(string);
@@ -111,13 +115,7 @@ public class Controller {
     @GetMapping
             (value = "/nodes/{id}",
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getInfo(@PathVariable String id) {
-        if (!itemRepository.findById(id).isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\n" +
-                    "  \"code\": 404,\n" +
-                    "  \"message\": \"Item not found\"\n" +
-                    "}");
-        }
+    public FileOrFolder getInfo(@PathVariable String id) {
         SystemItemImport sii = itemRepository.getReferenceById(id);
         if (sii.getType().equals(FILE)) {
             return new File(sii);
@@ -129,13 +127,14 @@ public class Controller {
     }
 
 
+    //наполняет сет обьекта папка детьми
     void collectAllChildren(Folder folder) {
         SystemItemImport systemItemImport = itemRepository.getReferenceById(folder.getId());
         Set<SystemItemImport> set = systemItemImport.getChildren();
         for (SystemItemImport s: set) {
             System.out.println(s.getId());
         }
-        Set<Object> children = new HashSet<>();
+        Set<FileOrFolder> children = new HashSet<>();
         for (SystemItemImport s: set) {
             if (s.getType().equals(FILE)) {
                 File file = new File(s);

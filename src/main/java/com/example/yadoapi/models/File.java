@@ -11,7 +11,7 @@ import javax.persistence.Id;
 @NoArgsConstructor
 
 
-public class File {
+public class File extends FileOrFolder{
     private String id;
     private final String type = "FILE";
     private String date;
