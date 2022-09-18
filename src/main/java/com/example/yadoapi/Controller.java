@@ -8,7 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.EntityNotFoundException;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static com.example.yadoapi.models.SystemItemType.FILE;
@@ -26,6 +29,9 @@ public class Controller {
     public ResponseEntity<String> importAll(@RequestBody SystemItemImportRequest systemItemImportRequest){
         List<SystemItemImport> list = systemItemImportRequest.getItems();
         String updateDate = systemItemImportRequest.getUpdateDate();
+
+        // проверка, что дата в нужном формате
+        Instant.parse(updateDate);
 
         HashMap<String, SystemItemImport> hashMap = new HashMap<>();
         for (SystemItemImport sii: list) {
@@ -78,7 +84,7 @@ public class Controller {
             (value = "/delete/{id}",
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public void delete(@PathVariable String id, @RequestParam String date) {
-
+        try {
             Instant.parse(date);
             SystemItemImport sii = itemRepository.getReferenceById(id);
             //составляем сет на удаление
@@ -92,6 +98,10 @@ public class Controller {
                 itemRepository.saveAndFlush(parent);
             }
             idToDelete.forEach(s -> itemRepository.deleteById(s));
+
+        } catch (DateTimeParseException | EntityNotFoundException e) {
+
+        }
     }
 
     //метод по id составляет сет всех детей для их удаления
