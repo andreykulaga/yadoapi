@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityNotFoundException;
 import java.time.format.DateTimeParseException;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class MyExceptionHandler {
 
     ObjectMapper objectMapper = new ObjectMapper();

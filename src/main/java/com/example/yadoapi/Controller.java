@@ -84,24 +84,20 @@ public class Controller {
             (value = "/delete/{id}",
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public void delete(@PathVariable String id, @RequestParam String date) {
-        try {
-            Instant.parse(date);
-            SystemItemImport sii = itemRepository.getReferenceById(id);
-            //составляем сет на удаление
-            Set<String> idToDelete = markToDelete(id);
-            //изменяем размер и дату изменения всех родителей
-            if (sii.getParentId() != null) {
-                SystemItemImport parent = itemRepository.getReferenceById(sii.getParentId());
-                long newSize = parent.getSize() - sii.getSize();
-                parent.setSize(newSize);
-                parent.setDate(date);
-                itemRepository.saveAndFlush(parent);
-            }
-            idToDelete.forEach(s -> itemRepository.deleteById(s));
-
-        } catch (DateTimeParseException | EntityNotFoundException e) {
-
+        Instant.parse(date);
+        SystemItemImport sii = itemRepository.getReferenceById(id);
+        //составляем сет на удаление
+        Set<String> idToDelete = markToDelete(id);
+        //изменяем размер и дату изменения всех родителей
+        if (sii.getParentId() != null) {
+            SystemItemImport parent = itemRepository.getReferenceById(sii.getParentId());
+            long newSize = parent.getSize() - sii.getSize();
+            parent.setSize(newSize);
+            parent.setDate(date);
+            itemRepository.saveAndFlush(parent);
         }
+        idToDelete.forEach(s -> itemRepository.deleteById(s));
+
     }
 
     //метод по id составляет сет всех детей для их удаления
