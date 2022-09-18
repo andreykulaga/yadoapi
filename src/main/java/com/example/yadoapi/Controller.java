@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static com.example.yadoapi.models.SystemItemType.FILE;
@@ -85,6 +84,9 @@ public class Controller {
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public void delete(@PathVariable String id, @RequestParam String date) {
         Instant.parse(date);
+        if (!itemRepository.findById(id).isPresent()) {
+            throw new EntityNotFoundException();
+        }
         SystemItemImport sii = itemRepository.getReferenceById(id);
         //составляем сет на удаление
         Set<String> idToDelete = markToDelete(id);
